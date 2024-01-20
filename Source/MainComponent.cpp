@@ -3,6 +3,7 @@
 #include <string>
 
 //#include "juce_MidiKeyboardComponent.h"
+//test change for github
 
 void AnimatedComponent::paint(juce::Graphics &g)
 {
