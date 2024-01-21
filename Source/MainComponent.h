@@ -59,8 +59,9 @@ public:
 
     //=============================================================================
     
-    void handleIncomingMidiMessage(juce::MidiInput*, const juce::MidiMessage&);
+    void handleIncomingMidiMessage(juce::MidiInput*, const juce::MidiMessage&) override;
     void setMidiInput();
+    void moveNotes();
     
 private:
     //==============================================================================

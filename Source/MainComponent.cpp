@@ -1,9 +1,18 @@
 #include "MainComponent.h"
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <list>
+#include <vector>
 
 //#include "juce_MidiKeyboardComponent.h"
 //test change for github
+
+std::unordered_map<int, juce::Rectangle<int>> activeNotes;
+//std::list<juce::Rectangle<int>> prevNotes;
+std::vector<juce::Rectangle<int>> prevNotes (120);
+int PIXEL_MULTIPLIER = 7;
+int NOTE_SPEED = 2;
 
 void AnimatedComponent::paint(juce::Graphics &g)
 {
@@ -97,10 +106,40 @@ void MainComponent::releaseResources()
 //==============================================================================
 void MainComponent::paint (juce::Graphics& g)
 {
+    
+    /* Here is where we draw the notes with the given MIDI note information.
+     Iterate through activeNotes hashmap and prevNotes vector and simply
+     draw wth info. other function handle change of data, specifically height and
+     y coordinate.
+     */
+    
+    moveNotes();
+    
+    
+    
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-//    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
+    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    
     // You can add your drawing code here!
+    //    juce::Rectangle<int> area (10, 10, 40, 40);
+    
+    //for (Rectangle in Rectangle list){
+    //
+    //
+    //}
+    
+    g.setColour(juce::Colours::orange);
+    g.fillRect(10, 10, 40, 40);
+    
+    for (auto& [id, note]: activeNotes) {
+        g.setColour(juce::Colours::orange);
+        g.fillRect(note.getX() * PIXEL_MULTIPLIER , note.getY(), note.getWidth(), note.getHeight());
+    }
+    for (int i = 0; i < prevNotes.size(); i++){
+        g.setColour(juce::Colours::orange);
+        g.fillRect(prevNotes.at(i).getX() * PIXEL_MULTIPLIER , prevNotes.at(i).getY() , prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
+    }
+//    g.fillRect(area);
 }
 
 void MainComponent::resized()
@@ -131,6 +170,17 @@ void MainComponent::handleIncomingMidiMessage(juce::MidiInput*, const juce::Midi
     //ToDo: make global variables to use to store all midi messages
     //toDo: Find a way to draw a note similar to how i did in Java edition
     
+    int noteID = message.getNoteNumber();
+    int velocity = message.getVelocity();
+    if (velocity > 0) {
+        juce::Rectangle<int> note (noteID, 300, 5, 10);
+        activeNotes.insert({noteID, note});
+    } else {
+        if (activeNotes.count(noteID)==1){
+            prevNotes.push_back(activeNotes[noteID]); activeNotes[noteID];
+            activeNotes.erase(noteID);
+        }
+    }
 }
 
 void MainComponent::setMidiInput()
@@ -144,4 +194,17 @@ void MainComponent::setMidiInput()
 
     deviceManager.addMidiInputDeviceCallback (newInput.identifier, this);
 
+}
+
+void MainComponent::moveNotes()
+{
+    for (auto& [noteID, note] : activeNotes){
+        juce::Rectangle<int> updatedNote (activeNotes[noteID].getX(), activeNotes[noteID].getY()-NOTE_SPEED, activeNotes[noteID].getWidth(), activeNotes[noteID].getHeight()+NOTE_SPEED);
+        activeNotes[noteID] = updatedNote;
+    }
+    
+    for (int i = 0; i < prevNotes.size(); i++) {
+        juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
+        prevNotes[i] = updatedNote;
+    }
 }
