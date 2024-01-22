@@ -13,29 +13,30 @@ std::unordered_map<int, juce::Rectangle<int>> activeNotes;
 std::vector<juce::Rectangle<int>> prevNotes (120);
 int PIXEL_MULTIPLIER = 7;
 int NOTE_SPEED = 2;
+juce::Image backgroundImage;
 
-void AnimatedComponent::paint(juce::Graphics &g)
-{
-//    g.fillAll(juce::Colours::white);
-    g.fillAll(bkgcolr);
-    g.setColour(juce::Colours::black);
-    g.drawRect(getLocalBounds());
-}
-
-void AnimatedComponent::mouseExit(const juce::MouseEvent &e){
-    bkgcolr = juce::Colour(0xFFFF0000);
-    repaint();
-}
-
-void AnimatedComponent::mouseEnter(const juce::MouseEvent &e){
-    bkgcolr = juce::Colour(0xFFFF00FF);
-    
-    new DelayedOneShotLambda(1000, [this]()
-                             { DBG( "bounds: " + getLocalBounds().toString() ); }
-                             );
-    
-    repaint();
-}
+//void AnimatedComponent::paint(juce::Graphics &g)
+//{
+////    g.fillAll(juce::Colours::white);
+//    g.fillAll(bkgcolr);
+//    g.setColour(juce::Colours::black);
+//    g.drawRect(getLocalBounds());
+//}
+//
+//void AnimatedComponent::mouseExit(const juce::MouseEvent &e){
+//    bkgcolr = juce::Colour(0xFFFF0000);
+//    repaint();
+//}
+//
+//void AnimatedComponent::mouseEnter(const juce::MouseEvent &e){
+//    bkgcolr = juce::Colour(0xFFFF00FF);
+//    
+//    new DelayedOneShotLambda(1000, [this]()
+//                             { DBG( "bounds: " + getLocalBounds().toString() ); }
+//                             );
+//    
+//    repaint();
+//}
 
 
 
@@ -64,12 +65,20 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
+    
+    
+//    updatingThread.startThread();
+    Timer::startTimerHz(60);
+    
+    
 }
 
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
+//    updatingThread.stopThread(1000);
+    Timer::stopTimer();
 }
 
 //==============================================================================
@@ -113,23 +122,19 @@ void MainComponent::paint (juce::Graphics& g)
      y coordinate.
      */
     
-    moveNotes();
-    
-    
-    
     // (Our component is opaque, so we must completely fill the background with a solid colour)
+    backgroundImage = juce::ImageCache::getFromFile(juce::File("/Users/zarifkarim/Documents/MIDI_Viz/Builds/MacOSX/bkg.jpeg"));
+    g.drawImageAt(backgroundImage, 0, 0);
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
     
     // You can add your drawing code here!
+    
+//    moveNotes();
+    
     //    juce::Rectangle<int> area (10, 10, 40, 40);
-    
-    //for (Rectangle in Rectangle list){
-    //
-    //
-    //}
-    
     g.setColour(juce::Colours::orange);
     g.fillRect(10, 10, 40, 40);
+    //    g.fillRect(area);
     
     for (auto& [id, note]: activeNotes) {
         g.setColour(juce::Colours::orange);
@@ -139,7 +144,6 @@ void MainComponent::paint (juce::Graphics& g)
         g.setColour(juce::Colours::orange);
         g.fillRect(prevNotes.at(i).getX() * PIXEL_MULTIPLIER , prevNotes.at(i).getY() , prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
     }
-//    g.fillRect(area);
 }
 
 void MainComponent::resized()
@@ -148,7 +152,7 @@ void MainComponent::resized()
     // If you add any child components, this is where you should
     // update their positions.
 
-    comp.setBounds(getLocalBounds().withSizeKeepingCentre(400, 300));
+//    comp.setBounds(getLocalBounds().withSizeKeepingCentre(400, 300));
     midiLabel.setBounds(getLocalBounds().withSizeKeepingCentre(400, 300));
 }
 
@@ -196,7 +200,20 @@ void MainComponent::setMidiInput()
 
 }
 
-void MainComponent::moveNotes()
+//void MainComponent::moveNotes()
+//{
+//    for (auto& [noteID, note] : activeNotes){
+//        juce::Rectangle<int> updatedNote (activeNotes[noteID].getX(), activeNotes[noteID].getY()-NOTE_SPEED, activeNotes[noteID].getWidth(), activeNotes[noteID].getHeight()+NOTE_SPEED);
+//        activeNotes[noteID] = updatedNote;
+//    }
+//    
+//    for (int i = 0; i < prevNotes.size(); i++) {
+//        juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
+//        prevNotes[i] = updatedNote;
+//    }
+//}
+
+void MainComponent::timerCallback()
 {
     for (auto& [noteID, note] : activeNotes){
         juce::Rectangle<int> updatedNote (activeNotes[noteID].getX(), activeNotes[noteID].getY()-NOTE_SPEED, activeNotes[noteID].getWidth(), activeNotes[noteID].getHeight()+NOTE_SPEED);
@@ -207,4 +224,13 @@ void MainComponent::moveNotes()
         juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
         prevNotes[i] = updatedNote;
     }
+    
+//    int i = 0;
+//    for (auto& note : prevNotes){
+//        juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight()+NOTE_SPEED);
+//        prevNotes.at(i) = updatedNote;
+//        i++;
+//    }
+    
+    repaint();
 }
