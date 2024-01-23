@@ -4,40 +4,18 @@
 #include <unordered_map>
 #include <list>
 #include <vector>
+#include <set>
 
 //#include "juce_MidiKeyboardComponent.h"
 //test change for github
 
 std::unordered_map<int, juce::Rectangle<int>> activeNotes;
-//std::list<juce::Rectangle<int>> prevNotes;
 std::vector<juce::Rectangle<int>> prevNotes (120);
+std::set<int> whiteKeys = {2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 84, 86, 88, 89, 91, 93, 95, 96, 98, 100, 101, 103, 105, 107, 108, 110, 112, 113, 115, 119, 120};
+std::set<int> blackKeys = {1, 3, 6, 8, 10, 13, 15, 18, 20, 22, 25, 27, 30, 32, 34, 37, 39, 42, 44, 46, 49, 51, 54, 56, 58, 61, 63, 66, 68, 70, 73, 75, 78, 80, 82, 85, 87, 90, 92, 94, 97, 99, 102, 104, 106, 109, 111, 114, 116, 118};
 int PIXEL_MULTIPLIER = 7;
 int NOTE_SPEED = 2;
 juce::Image backgroundImage;
-
-//void AnimatedComponent::paint(juce::Graphics &g)
-//{
-////    g.fillAll(juce::Colours::white);
-//    g.fillAll(bkgcolr);
-//    g.setColour(juce::Colours::black);
-//    g.drawRect(getLocalBounds());
-//}
-//
-//void AnimatedComponent::mouseExit(const juce::MouseEvent &e){
-//    bkgcolr = juce::Colour(0xFFFF0000);
-//    repaint();
-//}
-//
-//void AnimatedComponent::mouseEnter(const juce::MouseEvent &e){
-//    bkgcolr = juce::Colour(0xFFFF00FF);
-//    
-//    new DelayedOneShotLambda(1000, [this]()
-//                             { DBG( "bounds: " + getLocalBounds().toString() ); }
-//                             );
-//    
-//    repaint();
-//}
-
 
 
 //==============================================================================
@@ -45,13 +23,6 @@ MainComponent::MainComponent()
 {
     // Make sure you set the size of the component after
     // you add any child components.
-//    addAndMakeVisible(comp);
-    setSize (800, 600);
-    setMidiInput();
-    
-    //midiLabel
-    midiLabel.setText("midiText", juce::sendNotification);
-    addAndMakeVisible(midiLabel);
     
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -66,8 +37,13 @@ MainComponent::MainComponent()
         setAudioChannels (2, 2);
     }
     
+    //another possible idea is to have a button that lets you select if you have either 88 keys or 120 possible keys
     
-//    updatingThread.startThread();
+    setSize (1000, 600);
+    
+    setMidiInput();
+    midiLabel.setText("midiText", juce::sendNotification);
+    addAndMakeVisible(midiLabel);
     Timer::startTimerHz(60);
     
     
@@ -84,32 +60,17 @@ MainComponent::~MainComponent()
 //==============================================================================
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    // This function will be called when the audio device is started, or when
-    // its settings (i.e. sample rate, block size, etc) are changed.
-
-    // You can use this function to initialise any resources you might need,
-    // but be careful - it will be called on the audio thread, not the GUI thread.
-
-    // For more details, see the help for AudioProcessor::prepareToPlay()
+    
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    // Your audio-processing code goes here!
-
-    // For more details, see the help for AudioProcessor::getNextAudioBlock()
-
-    // Right now we are not producing any data, in which case we need to clear the buffer
-    // (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
 }
 
 void MainComponent::releaseResources()
 {
-    // This will be called when the audio device stops, or when it is being
-    // restarted due to a setting change.
 
-    // For more details, see the help for AudioProcessor::releaseResources()
 }
 
 //==============================================================================
@@ -123,23 +84,20 @@ void MainComponent::paint (juce::Graphics& g)
      */
     
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    backgroundImage = juce::ImageCache::getFromFile(juce::File("/Users/zarifkarim/Documents/MIDI_Viz/Builds/MacOSX/bkg.jpeg"));
-    g.drawImageAt(backgroundImage, 0, 0);
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+//    backgroundImage = juce::ImageCache::getFromFile(juce::File("/Users/zarifkarim/Documents/MIDI_Viz/Builds/MacOSX/bkg.jpeg"));
+//    g.drawImageAt(backgroundImage, 0, 0);
+//    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
     
-    // You can add your drawing code here!
+    // You can add your drawing code
     
-//    moveNotes();
-    
-    //    juce::Rectangle<int> area (10, 10, 40, 40);
     g.setColour(juce::Colours::orange);
     g.fillRect(10, 10, 40, 40);
-    //    g.fillRect(area);
     
     for (auto& [id, note]: activeNotes) {
         g.setColour(juce::Colours::orange);
         g.fillRect(note.getX() * PIXEL_MULTIPLIER , note.getY(), note.getWidth(), note.getHeight());
     }
+    
     for (int i = 0; i < prevNotes.size(); i++){
         g.setColour(juce::Colours::orange);
         g.fillRect(prevNotes.at(i).getX() * PIXEL_MULTIPLIER , prevNotes.at(i).getY() , prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
@@ -168,16 +126,14 @@ void MainComponent::handleIncomingMidiMessage(juce::MidiInput*, const juce::Midi
         midiText << ":Velocity" << message.getVelocity();
     }
     midiLabel.getTextValue() = midiText;
-    DBG(midiText);
-    
-    //it seems that all code will be going here, just like in Java edition
-    //ToDo: make global variables to use to store all midi messages
-    //toDo: Find a way to draw a note similar to how i did in Java edition
     
     int noteID = message.getNoteNumber();
     int velocity = message.getVelocity();
+    bool isBlackKey = blackKeys.count(noteID) == 1;
+    int noteWidth = (isBlackKey) ? 4 : 6;
+//    int xOffset = (isBlackKey) ? 1 : 0;
     if (velocity > 0) {
-        juce::Rectangle<int> note (noteID, 300, 5, 10);
+        juce::Rectangle<int> note (noteID, Component::getHeight(), noteWidth, 1);
         activeNotes.insert({noteID, note});
     } else {
         if (activeNotes.count(noteID)==1){
@@ -200,20 +156,7 @@ void MainComponent::setMidiInput()
 
 }
 
-//void MainComponent::moveNotes()
-//{
-//    for (auto& [noteID, note] : activeNotes){
-//        juce::Rectangle<int> updatedNote (activeNotes[noteID].getX(), activeNotes[noteID].getY()-NOTE_SPEED, activeNotes[noteID].getWidth(), activeNotes[noteID].getHeight()+NOTE_SPEED);
-//        activeNotes[noteID] = updatedNote;
-//    }
-//    
-//    for (int i = 0; i < prevNotes.size(); i++) {
-//        juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
-//        prevNotes[i] = updatedNote;
-//    }
-//}
-
-void MainComponent::timerCallback()
+void MainComponent::moveNotes()
 {
     for (auto& [noteID, note] : activeNotes){
         juce::Rectangle<int> updatedNote (activeNotes[noteID].getX(), activeNotes[noteID].getY()-NOTE_SPEED, activeNotes[noteID].getWidth(), activeNotes[noteID].getHeight()+NOTE_SPEED);
@@ -224,13 +167,10 @@ void MainComponent::timerCallback()
         juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
         prevNotes[i] = updatedNote;
     }
-    
-//    int i = 0;
-//    for (auto& note : prevNotes){
-//        juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight()+NOTE_SPEED);
-//        prevNotes.at(i) = updatedNote;
-//        i++;
-//    }
-    
+}
+
+void MainComponent::timerCallback()
+{
+    moveNotes();
     repaint();
 }
