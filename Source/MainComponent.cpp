@@ -15,7 +15,7 @@ std::set<int> whiteKeys = {2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24, 26
 std::set<int> blackKeys = {1, 3, 6, 8, 10, 13, 15, 18, 20, 22, 25, 27, 30, 32, 34, 37, 39, 42, 44, 46, 49, 51, 54, 56, 58, 61, 63, 66, 68, 70, 73, 75, 78, 80, 82, 85, 87, 90, 92, 94, 97, 99, 102, 104, 106, 109, 111, 114, 116, 118};
 int PIXEL_MULTIPLIER = 7;
 int NOTE_SPEED = 2;
-juce::Image backgroundImage;
+juce::Image backgroundImage = juce::ImageFileFormat::loadFrom(juce::File("/Users/zarifkarim/Documents/MIDI_Viz/Builds/MacOSX/bkg.jpeg"));
 
 
 //==============================================================================
@@ -44,9 +44,7 @@ MainComponent::MainComponent()
     setMidiInput();
     midiLabel.setText("midiText", juce::sendNotification);
     addAndMakeVisible(midiLabel);
-    Timer::startTimerHz(60);
-    
-    
+    Timer::startTimerHz(120);
 }
 
 MainComponent::~MainComponent()
@@ -83,13 +81,9 @@ void MainComponent::paint (juce::Graphics& g)
      y coordinate.
      */
     
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-//    backgroundImage = juce::ImageCache::getFromFile(juce::File("/Users/zarifkarim/Documents/MIDI_Viz/Builds/MacOSX/bkg.jpeg"));
-//    g.drawImageAt(backgroundImage, 0, 0);
-//    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    
     // You can add your drawing code
     
+    g.drawImageWithin(backgroundImage, 0, 0, Component::getWidth(), Component::getHeight(), juce::RectanglePlacement::fillDestination);
     g.setColour(juce::Colours::orange);
     g.fillRect(10, 10, 40, 40);
     
@@ -111,7 +105,8 @@ void MainComponent::resized()
     // update their positions.
 
 //    comp.setBounds(getLocalBounds().withSizeKeepingCentre(400, 300));
-    midiLabel.setBounds(getLocalBounds().withSizeKeepingCentre(400, 300));
+//    midiLabel.setBounds(getLocalBounds().withSizeKeepingCentre(400, 300));
+    midiLabel.setBounds(getLocalBounds().withTop(0));
 }
 
 void MainComponent::handleIncomingMidiMessage(juce::MidiInput*, const juce::MidiMessage& message)
@@ -164,6 +159,10 @@ void MainComponent::moveNotes()
     }
     
     for (int i = 0; i < prevNotes.size(); i++) {
+//        if (prevNotes.at(i).getY() + prevNotes.at(i).getHeight() < 0){
+//            prevNotes.erase(prevNotes.begin()+i);
+//            i--;
+//        }
         juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
         prevNotes[i] = updatedNote;
     }
