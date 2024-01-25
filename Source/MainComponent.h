@@ -5,6 +5,33 @@
 #include <list>
 #include <vector>
 
+class Note 
+{
+public:
+    Note(int x, int y, int height, int velocity, bool whiteOrBlack)
+    {
+        this->x = x;
+        this->y = y;
+        this->height = height;
+        this->velocity = velocity;
+        this->whiteOrBlack = whiteOrBlack;
+    };
+    
+    int getX() {return x;};
+    int getY() {return y;};
+    int getHeight() {return height;};
+    int getVelocity() {return velocity;};
+    bool getWhiteOrBlack() {return whiteOrBlack;};
+    
+private:
+    int x;
+    int y;
+    int height;
+    int width;
+    int velocity;
+    bool whiteOrBlack;
+};
+
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all

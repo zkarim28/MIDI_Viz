@@ -28,9 +28,10 @@ std::unordered_map<int, juce::Rectangle<int>> displayKeyMap;
 
 juce::BorderSize<int> borderSize (10,10,10,10);
 
-int PIXEL_MULTIPLIER = 10;
+int PIXEL_MULTIPLIER = 16;
 int NOTE_SPEED = 2;
-int KEY_HEIGHT = 50;
+int KEY_HEIGHT = 80;
+int NUM_KEYS = 121;
 juce::Image backgroundImage = juce::ImageFileFormat::loadFrom(juce::File("/Users/zarifkarim/Documents/MIDI_Viz/Builds/MacOSX/bkg.jpeg"));
 
 
@@ -55,10 +56,9 @@ MainComponent::MainComponent()
     
     //another possible idea is to have a button that lets you select if you have either 88 keys or 120 possible keys
     
-    setSize (1000, 600);
+    setSize (NUM_KEYS * PIXEL_MULTIPLIER, backgroundImage.getHeight());
     
-    int numWhiteKeys = whiteKeys.size();
-    for (int i = 0; i < numWhiteKeys; i++) {
+    for (int i = 0; i < NUM_KEYS; i++) {
         juce::Rectangle<int> key (i*PIXEL_MULTIPLIER, 0, PIXEL_MULTIPLIER, KEY_HEIGHT);
         displayKeyMap.insert({i, key});
     }
@@ -131,7 +131,7 @@ void MainComponent::paint (juce::Graphics& g)
     
     //repaint displayKeys
     for (auto& [id, note]: displayKeyMap) {
-        g.setColour(juce::Colours::blue);
+        g.setColour(juce::Colour(62, 177, 219));
         g.fillRect(note.getX(), Component::getHeight() - KEY_HEIGHT, note.getWidth(), note.getHeight());
         g.setColour(juce::Colours::black);
         g.drawRect(note.getX(), Component::getHeight() - KEY_HEIGHT, note.getWidth(), note.getHeight(), 3);
@@ -165,7 +165,7 @@ void MainComponent::handleIncomingMidiMessage(juce::MidiInput*, const juce::Midi
     int noteID = message.getNoteNumber();
     int velocity = message.getVelocity();
     bool isBlackKey = blackKeys.count(noteID) == 1;
-    int noteWidth = (isBlackKey) ? 4 : PIXEL_MULTIPLIER;
+    int noteWidth = PIXEL_MULTIPLIER;
     if (velocity > 0) {
         juce::Rectangle<int> note (noteID*PIXEL_MULTIPLIER, Component::getHeight()-KEY_HEIGHT, noteWidth, 1);
         activeNotes.insert({noteID, note});
