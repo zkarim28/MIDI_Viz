@@ -5,32 +5,61 @@
 #include <list>
 #include <vector>
 
-class Note 
-{
-public:
-    Note(int x, int y, int height, int velocity, bool whiteOrBlack)
-    {
-        this->x = x;
-        this->y = y;
-        this->height = height;
-        this->velocity = velocity;
-        this->whiteOrBlack = whiteOrBlack;
-    };
-    
-    int getX() {return x;};
-    int getY() {return y;};
-    int getHeight() {return height;};
-    int getVelocity() {return velocity;};
-    bool getWhiteOrBlack() {return whiteOrBlack;};
-    
-private:
-    int x;
-    int y;
-    int height;
-    int width;
-    int velocity;
-    bool whiteOrBlack;
-};
+//struct Note
+//{
+//public:
+//    Note(int x, int y, int width, int height, int velocity, bool whiteOrBlack)
+//    {
+//        this->x = x;
+//        this->y = y;
+//        this->width = width;
+//        this->height = height;
+//        this->velocity = velocity;
+//        this->whiteOrBlack = whiteOrBlack;
+//    };
+//    
+//    int getX() {return x;};
+//    int getY() {return y;};
+//    int getWidth() {return width;};
+//    int getHeight() {return height;};
+//    int getVelocity() {return velocity;};
+//    bool getWhiteOrBlack() {return whiteOrBlack;};
+//    
+//private:
+//    int x;
+//    int y;
+//    int height;
+//    int width;
+//    int velocity;
+//    bool whiteOrBlack;
+//};
+//
+//struct Key
+//{
+//public:
+//    Note(int x, int y, int width, int height, bool whiteOrBlack)
+//    {
+//        this->x = x;
+//        this->y = y;
+//        this->width = width;
+//        this->height = height;
+//        this->whiteOrBlack = whiteOrBlack;
+//    };
+//    
+//    int getX() {return x;};
+//    int getY() {return y;};
+//    int getWidth() {return width;};
+//    int getHeight() {return height;};
+//    bool getWhiteOrBlack() {return whiteOrBlack;};
+//    
+//private:
+//    int x;
+//    int y;
+//    int width;
+//    int height;
+//    bool whiteOrBlack;
+//};
+
 
 //==============================================================================
 /*
@@ -63,7 +92,6 @@ public:
 private:
     //==============================================================================
     // Your private member variables go here...
-    //    AnimatedComponent comp;
     
     juce::AudioDeviceManager audioDeviceManager;
     juce::Label midiLabel;
