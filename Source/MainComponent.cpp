@@ -7,6 +7,7 @@
 #include <set>
 
 std::unordered_map<int, juce::Rectangle<int>> activeNotes;
+
 std::vector<juce::Rectangle<int>> prevNotes (120);
 std::set<int> whiteKeys = {0, 2, 4, 5, 7, 9, 11,
     12, 14, 16, 17, 19, 21, 23,
@@ -21,15 +22,14 @@ std::set<int> whiteKeys = {0, 2, 4, 5, 7, 9, 11,
 
 std::set<int> blackKeys = {1, 3, 6, 8, 10, 13, 15, 18, 20, 22, 25, 27, 30, 32, 34, 37, 39, 42, 44, 46, 49, 51, 54, 56, 58, 61, 63, 66, 68, 70, 73, 75, 78, 80, 82, 85, 87, 90, 92, 94, 97, 99, 102, 104, 106, 109, 111, 114, 116, 118};
 
-//std::unordered_map<int, juce::Rectangle<int>> displayKeyMap;
 std::unordered_map<int, std::vector<int>> displayKeyMap;
-//{x, y, width, height, isBlack, isOn}
+//{x, y, width, height, isOn}
 
 juce::BorderSize<int> borderSize (10,10,10,10);
 
 int PIXEL_MULTIPLIER = 15;
 int NOTE_SPEED = 2;
-int KEY_HEIGHT = 80;
+int KEY_HEIGHT = 85;
 int NUM_KEYS = 121;
 juce::Image backgroundImage = juce::ImageFileFormat::loadFrom(juce::File("/Users/zarifkarim/Documents/MIDI_Viz/Builds/MacOSX/bkg.jpeg"));
 
@@ -58,14 +58,8 @@ MainComponent::MainComponent()
     
     setSize (NUM_KEYS * PIXEL_MULTIPLIER, backgroundImage.getHeight());
 
-    int isBlack = 0;
     for (int i = 0; i < NUM_KEYS; i++) {
-        if (blackKeys.count(i)>0){
-            isBlack = 1;
-        }
-        std::vector<int> key = {i*PIXEL_MULTIPLIER, 0, PIXEL_MULTIPLIER, KEY_HEIGHT, isBlack, 0};
-        //{x, y, width, height, isBlack, isOn}
-//        juce::Rectangle<int> key (i*PIXEL_MULTIPLIER, 0, PIXEL_MULTIPLIER, KEY_HEIGHT);
+        std::vector<int> key = {i*PIXEL_MULTIPLIER, 0, PIXEL_MULTIPLIER, KEY_HEIGHT, 0};
         displayKeyMap.insert({i, key});
     }
     
@@ -136,10 +130,10 @@ void MainComponent::paint (juce::Graphics& g)
     
     //repaint displayKeys
     for (auto& [id, note]: displayKeyMap) {
-        g.setColour((note.back() == 1) ? juce::Colours::blue : juce::Colours::grey);
+        g.setColour((note.back() == 1) ? juce::Colours::blue : ((blackKeys.count(id)) ? juce::Colours::black : juce::Colours::grey));
         g.fillRect(note[0], Component::getHeight() - KEY_HEIGHT, note[2], note[3]);
 //        g.fillRect(note.getX(), Component::getHeight() - KEY_HEIGHT, note.getWidth(), note.getHeight());
-        g.setColour(juce::Colours::black);
+        g.setColour((blackKeys.count(id)) ? juce::Colours::grey : juce::Colours::black);
         g.drawRect(note[0], Component::getHeight() - KEY_HEIGHT, note[2], note[3], 3);
 //        g.drawRect(note.getX(), Component::getHeight() - KEY_HEIGHT, note.getWidth(), note.getHeight(), 3);
     }
@@ -171,7 +165,7 @@ void MainComponent::handleIncomingMidiMessage(juce::MidiInput*, const juce::Midi
     
     int noteID = message.getNoteNumber();
     int velocity = message.getVelocity();
-    bool isBlackKey = blackKeys.count(noteID) == 1;
+    bool isBlackKey = blackKeys.count(noteID) != 0;
     int noteWidth = PIXEL_MULTIPLIER;
     if (velocity > 0) {
         juce::Rectangle<int> note (noteID*PIXEL_MULTIPLIER, Component::getHeight()-KEY_HEIGHT, noteWidth, 1);
