@@ -6,9 +6,19 @@
 #include <vector>
 #include <set>
 
-std::unordered_map<int, juce::Rectangle<int>> activeNotes;
+//std::unordered_map<int, juce::Rectangle<int>> activeNotes;
+std::unordered_map<int ,std::vector<int>> activeNotes;
+//{noteID, {x, y, width, height, isBlack, velocity}}
 
-std::vector<juce::Rectangle<int>> prevNotes (120);
+//std::vector<juce::Rectangle<int>> prevNotes (120);
+std::vector<std::vector<int>> prevNotes (120);
+
+//std::list<std::vector> prevNotes;
+//std::list<std::list<int>>({{}});
+
+
+//{x, y, width, height, isBlack, velocity}
+
 std::set<int> whiteKeys = {0, 2, 4, 5, 7, 9, 11,
     12, 14, 16, 17, 19, 21, 23,
     24, 26, 28, 29, 31, 33, 35,
@@ -114,28 +124,36 @@ void MainComponent::paint (juce::Graphics& g)
     
     //display new notes
     for (auto& [id, note]: activeNotes) {
-        g.setColour(juce::Colours::orange);
-        g.fillRect(note.getX(), note.getY(), note.getWidth(), note.getHeight());
+//        g.setColour(juce::Colours::orange);
+        g.setColour(juce::Colour(0, note.back()*2, note.back()*2));
+//        g.fillRect(note.getX(), note.getY(), note.getWidth(), note.getHeight());
+        g.fillRect(note[0], note[1], note[2], note[3]);
         g.setColour(juce::Colours::black);
-        g.drawRect(note.getX(), note.getY(), note.getWidth(), note.getHeight(), 1);
+//        g.drawRect(note.getX(), note.getY(), note.getWidth(), note.getHeight(), 1);
+        g.drawRect(note[0], note[1], note[2], note[3], 1);
     }
+
     
     //display old notes
-    for (int i = 0; i < prevNotes.size(); i++){
-        g.setColour(juce::Colours::orange);
-        g.fillRect(prevNotes.at(i).getX(), prevNotes.at(i).getY() , prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
-        g.setColour(juce::Colours::black);
-        g.drawRect(prevNotes.at(i).getX(), prevNotes.at(i).getY() , prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight(), 1);
+    for(std::vector<int>& note: prevNotes){
+        if(note.size() >= 4){
+            g.setColour(juce::Colour(0, note.back()*2, note.back()*2));
+            g.fillRect(note[0], note[1], note[2], note[3]);
+            g.setColour(juce::Colours::black);
+            g.drawRect(note[0], note[1], note[2], note[3], 1);
+        }
+        //        g.fillRect(prevNotes.at(i).getX(), prevNotes.at(i).getY() , prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
+        //        g.fillRect(prevNotes[i].at(0), prevNotes[i].at(1), prevNotes[i].at(2), prevNotes[i].at(3));
+        //        g.drawRect(prevNotes.at(i).getX(), prevNotes.at(i).getY() , prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight(), 1);
+        //        g.drawRect(prevNotes[i].at(0), prevNotes[i].at(1), prevNotes[i].at(2), prevNotes[i].at(3));
     }
     
     //repaint displayKeys
     for (auto& [id, note]: displayKeyMap) {
         g.setColour((note.back() == 1) ? juce::Colours::blue : ((blackKeys.count(id)) ? juce::Colours::black : juce::Colours::grey));
         g.fillRect(note[0], Component::getHeight() - KEY_HEIGHT, note[2], note[3]);
-//        g.fillRect(note.getX(), Component::getHeight() - KEY_HEIGHT, note.getWidth(), note.getHeight());
         g.setColour((blackKeys.count(id)) ? juce::Colours::grey : juce::Colours::black);
         g.drawRect(note[0], Component::getHeight() - KEY_HEIGHT, note[2], note[3], 3);
-//        g.drawRect(note.getX(), Component::getHeight() - KEY_HEIGHT, note.getWidth(), note.getHeight(), 3);
     }
 }
 
@@ -168,12 +186,15 @@ void MainComponent::handleIncomingMidiMessage(juce::MidiInput*, const juce::Midi
     bool isBlackKey = blackKeys.count(noteID) != 0;
     int noteWidth = PIXEL_MULTIPLIER;
     if (velocity > 0) {
-        juce::Rectangle<int> note (noteID*PIXEL_MULTIPLIER, Component::getHeight()-KEY_HEIGHT, noteWidth, 1);
+//        juce::Rectangle<int> note (noteID*PIXEL_MULTIPLIER, Component::getHeight()-KEY_HEIGHT, noteWidth, 1);
+        std::vector<int> note = {noteID*PIXEL_MULTIPLIER, Component::getHeight()-KEY_HEIGHT, noteWidth, 1, isBlackKey, velocity};
         displayKeyMap[noteID].back() = 1;
         activeNotes.insert({noteID, note});
     } else {
         if (activeNotes.count(noteID)==1){
-            prevNotes.push_back(activeNotes[noteID]); activeNotes[noteID];
+//            juce::Rectangle<int> oldNote (activeNotes[noteID][0], activeNotes[noteID][1], activeNotes[noteID][2], activeNotes[noteID][3]);
+            prevNotes.push_back(activeNotes[noteID]);    //change later when prevNote becomes hashmap
+//            prevNotes.push_back(oldNote);
             displayKeyMap[noteID].back() = 0;
             activeNotes.erase(noteID);
         }
@@ -196,17 +217,26 @@ void MainComponent::setMidiInput()
 void MainComponent::moveNotes()
 {
     for (auto& [noteID, note] : activeNotes){
-        juce::Rectangle<int> updatedNote (activeNotes[noteID].getX(), activeNotes[noteID].getY()-NOTE_SPEED, activeNotes[noteID].getWidth(), activeNotes[noteID].getHeight()+NOTE_SPEED);
+//        juce::Rectangle<int> updatedNote (activeNotes[noteID].getX(), activeNotes[noteID].getY()-NOTE_SPEED, activeNotes[noteID].getWidth(), activeNotes[noteID].getHeight()+NOTE_SPEED);
+        std::vector<int> updatedNote = {note.at(0), note.at(1)-NOTE_SPEED, note.at(2), note.at(3)+NOTE_SPEED, note.at(4), note.at(5)};
         activeNotes[noteID] = updatedNote;
     }
     
-    for (int i = 0; i < prevNotes.size(); i++) {
+    for(size_t i = 0; i < prevNotes.size(); i++){
+        std::vector<int>& note = prevNotes[i];
 //        if (prevNotes.at(i).getY() + prevNotes.at(i).getHeight() < 0){
 //            prevNotes.erase(prevNotes.begin()+i);
 //            i--;
 //        }
-        juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
-        prevNotes[i] = updatedNote;
+        if(note.size() >= 4){
+            std::vector<int> updatedNote = {note[0], note[1]-NOTE_SPEED, note[2], note[3], note[4], note[5]};
+            prevNotes[i] = updatedNote;
+        }
+//        juce::Rectangle<int> updatedNote (prevNotes.at(i).getX(), prevNotes.at(i).getY()-NOTE_SPEED, prevNotes.at(i).getWidth(), prevNotes.at(i).getHeight());
+//        std::vector<int> updatedNote = {prevNotes[i].at(0), prevNotes[i].at(1)-NOTE_SPEED, prevNotes[i].at(2), prevNotes[i].at(3)+NOTE_SPEED, prevNotes[i].at(4), prevNotes[i].at(5)};
+        
+        
+//        prevNotes[i] = updatedNote;
     }
 }
 
