@@ -5,62 +5,6 @@
 #include <list>
 #include <vector>
 
-//struct Note
-//{
-//public:
-//    Note(int x, int y, int width, int height, int velocity, bool whiteOrBlack)
-//    {
-//        this->x = x;
-//        this->y = y;
-//        this->width = width;
-//        this->height = height;
-//        this->velocity = velocity;
-//        this->whiteOrBlack = whiteOrBlack;
-//    };
-//    
-//    int getX() {return x;};
-//    int getY() {return y;};
-//    int getWidth() {return width;};
-//    int getHeight() {return height;};
-//    int getVelocity() {return velocity;};
-//    bool getWhiteOrBlack() {return whiteOrBlack;};
-//    
-//private:
-//    int x;
-//    int y;
-//    int height;
-//    int width;
-//    int velocity;
-//    bool whiteOrBlack;
-//};
-//
-//struct Key
-//{
-//public:
-//    Note(int x, int y, int width, int height, bool whiteOrBlack)
-//    {
-//        this->x = x;
-//        this->y = y;
-//        this->width = width;
-//        this->height = height;
-//        this->whiteOrBlack = whiteOrBlack;
-//    };
-//    
-//    int getX() {return x;};
-//    int getY() {return y;};
-//    int getWidth() {return width;};
-//    int getHeight() {return height;};
-//    bool getWhiteOrBlack() {return whiteOrBlack;};
-//    
-//private:
-//    int x;
-//    int y;
-//    int width;
-//    int height;
-//    bool whiteOrBlack;
-//};
-
-
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
