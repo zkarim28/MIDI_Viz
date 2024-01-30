@@ -45,7 +45,7 @@
 		0D37609D366121E2F7437750 /* Main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
 		1C08B358E8E7C07A216428EF /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		1C3AFFF72B5B6175005898B9 /* HandlingMidiEventsTutorial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandlingMidiEventsTutorial.h; sourceTree = "<group>"; };
-		1C52D67B2B5EF1730012E469 /* bkg.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = bkg.jpeg; sourceTree = "<group>"; };
+		1C52D67B2B5EF1730012E469 /* bkg.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = bkg.jpeg; sourceTree = SOURCE_ROOT; };
 		1E792A363BE855A4FC3AC099 /* MainComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainComponent.h; path = ../../Source/MainComponent.h; sourceTree = SOURCE_ROOT; };
 		1ED1B90357AB9D077EF7F969 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = System/Library/Frameworks/CoreAudioKit.framework; sourceTree = SDKROOT; };
 		37615D9A760BFED18F9A23AF /* juce_audio_devices */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_devices; path = "~/JUCE/modules/juce_audio_devices"; sourceTree = "<absolute>"; };
